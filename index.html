@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Architect v10.1 (Story Fix)</title>
+    <style>
+        :root {
+            --bg-body: #020617;       
+            --bg-card: #0f172a;       
+            --bg-input: #1e293b;      
+            --accent: #d946ef;        /* Fuchsia 500 - Yeni Renk */
+            --accent-hover: #c026d3;  
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* HEADER */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .title-group h1 { margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; }
+        .title-group h1 span { color: var(--accent); }
+        .subtitle { color: var(--text-muted); font-size: 0.8rem; margin: 0; }
+
+        .controls { display: flex; gap: 8px; }
+
+        .btn-ctrl {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-main);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .btn-ctrl:hover { background: var(--border); }
+        .btn-primary-rand { background: var(--accent); border-color: var(--accent); color: white; }
+        .btn-primary-rand:hover { background: var(--accent-hover); }
+
+        /* SECTIONS */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-mini {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .btn-mini:hover { background: var(--bg-input); color: white; }
+
+        /* GRID SYSTEM */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 6px;
+            max-height: 140px;
+            overflow-y: auto;
+            padding-right: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .grid::-webkit-scrollbar { width: 4px; }
+        .grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        /* CHIPS */
+        .chip {
+            background-color: var(--bg-input);
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+        
+        .chip:hover { border-color: var(--text-muted); transform: translateY(-1px); }
+        .chip.active {
+            background-color: rgba(217, 70, 239, 0.15); /* Fuchsia tint */
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .chip-icon { font-size: 1rem; }
+        .chip-text { font-size: 0.75rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* INPUTS */
+        .input-box {
+            background: #0b101a;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .flex-row { display: flex; gap: 10px; }
+        .flex-col { flex: 1; display: flex; flex-direction: column; }
+
+        label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+
+        input, textarea, select {
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus { border-color: var(--accent); outline: none; }
+        
+        #termInput {
+            border-color: var(--accent);
+            background-color: rgba(217, 70, 239, 0.05);
+            font-weight: 600;
+        }
+
+        /* ACTIONS */
+        .actions { display: flex; gap: 10px; margin-top: 25px; }
+        
+        .btn-big {
+            flex: 1; padding: 12px; border: none; border-radius: 6px;
+            font-weight: 700; font-size: 0.9rem; cursor: pointer;
+            text-transform: uppercase; transition: 0.2s;
+        }
+        
+        .btn-gen { background: var(--accent); color: white; }
+        .btn-gen:hover { filter: brightness(1.1); }
+        
+        .btn-batch { background: linear-gradient(135deg, #be123c, #e11d48); color: white; }
+        .btn-batch:hover { filter: brightness(1.1); }
+
+        #output { margin-top: 15px; height: 320px; font-family: 'Consolas', monospace; line-height: 1.5; font-size: 0.85rem; }
+        .btn-copy { width: 100%; padding: 8px; margin-top: 8px; background: var(--success); border:none; border-radius:4px; color:white; font-weight:600; cursor:pointer; font-size: 0.85rem; }
+
+        @media (max-width: 768px) {
+            .flex-row { flex-direction: column; }
+            .top-bar { flex-direction: column; align-items: stretch; }
+            .controls { justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="top-bar">
+        <div class="title-group">
+            <h1>Story Architect <span>v10.1</span></h1>
+            <p class="subtitle" id="ui_subtitle">Natural Flow Edition</p>
+        </div>
+        <div class="controls">
+            <button class="btn-ctrl" onclick="app.toggleLanguage()">
+                <span>🌐</span> <span id="langDisplay">TR / EN</span>
+            </button>
+            <button class="btn-ctrl btn-primary-rand" onclick="app.randomizeAll()">
+                <span>🎲</span> <span id="ui_random_all">Tümünü Karıştır</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="section-header">
+        <span class="section-label" id="ui_sec_persona">1. KİMLİK / PERSONA</span>
+        <button class="btn-mini" onclick="app.triggerRandom('personaGrid')">🎲</button>
+    </div>
+    <div class="grid" id="personaGrid"></div>
+    <div class="input-box">
+        <label id="ui_lbl_persona_desc">Karakter Detayı</label>
+        <input type="text" id="personaInput">
+    </div>
+
+    <div class="section-header">
+        <span class="section-label" id="ui_sec_tone">2. ÜSLUP / TON</span>
+        <button class="btn-mini" onclick="app.triggerRandom('toneGrid')">🎲</button>
+    </div>
+    <div class="grid" id="toneGrid"></div>
+    <div class="input-box">
+        <label id="ui_lbl_tone_rule">Ton Kuralı</label>
+        <input type="text" id="toneInput">
+    </div>
+
+    <div class="section-header">
+        <span class="section-label" id="ui_sec_location">3. MEKAN / SETTING</span>
+        <button class="btn-mini" onclick="app.triggerRandom('locationGrid')">🎲</button>
+    </div>
+    <div class="grid" id="locationGrid"></div>
+    <div class="input-box">
+        <label id="ui_lbl_location">Seçilen Mekan</label>
+        <input type="text" id="mekanInput">
+    </div>
+
+    <div class="section-header">
+        <span class="section-label" id="ui_sec_concept">4. KONSEPT (Sadece Konu)</span>
+        <button class="btn-mini" onclick="app.triggerRandom('conceptGrid')">🎲</button>
+    </div>
+    <div class="grid" id="conceptGrid" style="max-height: 180px;"></div>
+    
+    <div class="input-box">
+        <label id="ui_lbl_term" style="color:var(--accent);">Konsept / Terim (AI Senaryoyu Kendi Üretecek)</label>
+        <input type="text" id="termInput" readonly>
+    </div>
+
+    <div class="section-header">
+        <span class="section-label" id="ui_sec_settings">5. TEKNİK AYARLAR</span>
+    </div>
+    <div class="flex-row">
+        <div class="flex-col">
+            <label id="ui_lbl_out_lang">Çıktı Dili</label>
+            <select id="langInput">
+                <option value="Turkish">Türkçe</option>
+                <option value="English">English</option>
+            </select>
+        </div>
+        <div class="flex-col">
+            <label id="ui_lbl_min">Min Kelime</label>
+            <input type="number" id="minInput" value="150">
+        </div>
+        <div class="flex-col">
+            <label id="ui_lbl_max">Max Kelime</label>
+            <input type="number" id="maxInput" value="300">
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn-big btn-gen" onclick="app.generateSingle()">
+            ⚡ <span id="ui_btn_gen">PROMPT OLUŞTUR</span>
+        </button>
+        <button class="btn-big btn-batch" onclick="app.generateBatch()">
+            📚 <span id="ui_btn_batch">TOPLU LİSTE (BATCH)</span>
+        </button>
+    </div>
+
+    <div style="margin-top:20px;">
+        <label style="color:var(--text-muted); font-weight:bold;">AI Output:</label>
+        <textarea id="output" readonly></textarea>
+        <button class="btn-copy" onclick="app.copy()" id="ui_btn_copy">📋 Kopyala</button>
+    </div>
+</div>
+
+<script>
+/* ==========================================================================
+   BILINGUAL DATA
+   ========================================================================== */
+const db = {
+    personas: [
+        { icon: "🚬", tr: { name: "Sokak Filozofu", desc: "Sokak jargonuna hakim, samimi, alaycı." }, en: { name: "Street Philosopher", desc: "Street-smart, sarcastic, sincere." } },
+        { icon: "👔", tr: { name: "Plaza Kölesi", desc: "Kurumsal dilden bıkmış beyaz yakalı." }, en: { name: "Corp. Slave", desc: "Sick of corporate buzzwords." } },
+        { icon: "📿", tr: { name: "Eski Toprak", desc: "Geleneksel dede, teknolojiye yabancı." }, en: { name: "Old Timer", desc: "Traditional elder, tech-illiterate." } },
+        { icon: "🤓", tr: { name: "Akademik İnek", desc: "Sosyal becerisi düşük, IQ yüksek." }, en: { name: "Nerd", desc: "Socially awkward, high IQ." } },
+        { icon: "👁️", tr: { name: "Komplo Dayı", desc: "Şüpheci, paranoyak, büyük resmi gören." }, en: { name: "Conspiracy Guy", desc: "Skeptical, paranoid." } },
+        { icon: "☕", tr: { name: "Gossip Teyze", desc: "Dedikoducu, her şeyi bilen komşu." }, en: { name: "Gossip Aunt", desc: "Curious neighbor who knows everything." } },
+        { icon: "💪", tr: { name: "Gym Bro", desc: "Protein ve kas odaklı, saf kalpli." }, en: { name: "Gym Bro", desc: "Obsessed with gains, pure-hearted." } },
+        { icon: "💻", tr: { name: "Hacker", desc: "Duygusuz, analitik, soğuk." }, en: { name: "Hacker", desc: "Emotionless, analytical, cold." } },
+        { icon: "🛒", tr: { name: "Bıkkın Esnaf", desc: "Müşteriden bıkmış, veresiye vermeyen." }, en: { name: "Grumpy Shopkeep", desc: "Tired of customers, no credit." } },
+        { icon: "🚕", tr: { name: "Taksici", desc: "Direksiyon başında memleket kurtaran." }, en: { name: "Taxi Driver", desc: "Opinionated driver." } },
+        { icon: "📱", tr: { name: "Z Kuşağı", desc: "Sürekli telefonda, yeni nesil dil." }, en: { name: "Gen Z", desc: "Always on phone, uses slang." } },
+        { icon: "🎨", tr: { name: "Sanatçı", desc: "Bohem, soyut düşünen." }, en: { name: "Artist", desc: "Bohemian, abstract thinker." } }
+    ],
+    tones: [
+        { icon: "🤝", tr: { name: "Samimi", desc: "Kanka gibi, argo, içten." }, en: { name: "Sincere", desc: "Like a buddy, slang allowed." } },
+        { icon: "🌑", tr: { name: "Karanlık", desc: "Noir, karamsar, kısa cümleler." }, en: { name: "Dark/Noir", desc: "Pessimistic, punchy sentences." } },
+        { icon: "😂", tr: { name: "Komik", desc: "Kendini gömen mizah, abartılı." }, en: { name: "Funny", desc: "Self-deprecating humor." } },
+        { icon: "😡", tr: { name: "Agresif", desc: "Tahammülsüz, öfkeli, sitemkar." }, en: { name: "Aggressive", desc: "Intolerant, angry." } },
+        { icon: "🎓", tr: { name: "Didaktik", desc: "Öğretmen edasıyla, bilgiç." }, en: { name: "Didactic", desc: "Teacher-like tone." } },
+        { icon: "🧊", tr: { name: "Robotik", desc: "Duygusuz, mantık odaklı." }, en: { name: "Robotic", desc: "Emotionless, logical." } },
+        { icon: "🥀", tr: { name: "Melankolik", desc: "Hüzünlü, duygusal, şairane." }, en: { name: "Melancholic", desc: "Sad, poetic, emotional." } },
+        { icon: "😱", tr: { name: "Panik", desc: "Telaşlı, hızlı, endişeli." }, en: { name: "Panic", desc: "Hasty, worried, fast." } }
+    ],
+    locations: [
+        { icon: "🎱", tr: "Kahvehane", en: "Coffee House" },
+        { icon: "🍽️", tr: "Lüks Restoran", en: "Luxury Restaurant" },
+        { icon: "🔧", tr: "Oto Sanayi", en: "Auto Repair Shop" },
+        { icon: "🚌", tr: "Metrobüs", en: "Crowded Bus" },
+        { icon: "🏺", tr: "Spotçu", en: "Second-hand Shop" },
+        { icon: "🏢", tr: "Plaza Ofisi", en: "Corporate Office" },
+        { icon: "🍎", tr: "Semt Pazarı", en: "Street Market" },
+        { icon: "💈", tr: "Berber", en: "Barber Shop" },
+        { icon: "🏋️", tr: "Spor Salonu", en: "Gym" },
+        { icon: "💍", tr: "Düğün Salonu", en: "Wedding Hall" },
+        { icon: "🏦", tr: "Banka Sırası", en: "Bank Queue" },
+        { icon: "🎧", tr: "Discord", en: "Discord Channel" },
+        { icon: "🚕", tr: "Taksi İçi", en: "Inside Taxi" },
+        { icon: "🛍️", tr: "AVM", en: "Shopping Mall" },
+        { icon: "🏥", tr: "Hastane Acil", en: "Hospital ER" },
+        { icon: "💎", tr: "Kuyumcu", en: "Jewelry Store" },
+        { icon: "🏠", tr: "Emlakçı", en: "Real Estate" },
+        { icon: "🎓", tr: "Okul Kantini", en: "School Canteen" },
+        { icon: "🚐", tr: "Dolmuş", en: "Minibus" },
+        { icon: "🚇", tr: "Metro", en: "Subway" },
+        { icon: "✈️", tr: "Havalimanı", en: "Airport" },
+        { icon: "📚", tr: "Kütüphane", en: "Library" },
+        { icon: "🛗", tr: "Asansör", en: "Elevator" },
+        { icon: "⛽", tr: "Benzinlik", en: "Gas Station" },
+        { icon: "🧖", tr: "Hamam", en: "Turkish Bath" },
+        { icon: "⛺", tr: "Kamp Alanı", en: "Camping Site" },
+        { icon: "🚢", tr: "Vapur", en: "Ferry" }
+    ],
+    concepts: [
+        { icon: "🖐️", tr: "Midas Dokunuşu", en: "Midas Touch" },
+        { icon: "🍳", tr: "Labor İlizyonu (Emek Yanılsaması)", en: "Labor Illusion" },
+        { icon: "🍿", tr: "Decoy Effect (Yem Etkisi)", en: "Decoy Effect" },
+        { icon: "⏳", tr: "Kıtlık İlkesi (Scarcity)", en: "Scarcity Principle" },
+        { icon: "⚡", tr: "Benjamin Franklin Etkisi", en: "Ben Franklin Effect" },
+        { icon: "🚪", tr: "Door-in-the-Face", en: "Door-in-the-Face" },
+        { icon: "💸", tr: "Batık Maliyet (Sunk Cost)", en: "Sunk Cost Fallacy" },
+        { icon: "🔦", tr: "Spotlight Etkisi", en: "Spotlight Effect" },
+        { icon: "😇", tr: "Halo Etkisi", en: "Halo Effect" },
+        { icon: "📉", tr: "Dunning-Kruger", en: "Dunning-Kruger Effect" },
+        { icon: "🚗", tr: "Baader-Meinhof", en: "Baader-Meinhof" },
+        { icon: "💊", tr: "Placebo Etkisi", en: "Placebo Effect" },
+        { icon: "⚓", tr: "Çapa Etkisi (Anchor)", en: "Anchor Effect" },
+        { icon: "😶", tr: "Seyirci Etkisi (Bystander)", en: "Bystander Effect" },
+        { icon: "😵", tr: "Seçim Paradoksu", en: "Paradox of Choice" },
+        { icon: "🐑", tr: "Sürü Psikolojisi", en: "Groupthink" },
+        { icon: "🦶", tr: "Foot-in-the-door", en: "Foot-in-the-door" },
+        { icon: "🎁", tr: "Karşılık Verme (Reciprocity)", en: "Reciprocity" },
+        { icon: "🖼️", tr: "Çerçeveleme (Framing)", en: "Framing Effect" },
+        { icon: "🔥", tr: "FOMO", en: "FOMO" }
+    ]
+};
+
+const uiLabels = {
+    tr: {
+        subtitle: "Akıcı Hikaye Anlatıcısı (Doğal Akış)",
+        random_all: "Tümünü Karıştır",
+        sec_persona: "1. KİMLİK / PERSONA",
+        lbl_persona_desc: "Karakter Detayı",
+        sec_tone: "2. ÜSLUP / TON",
+        lbl_tone_rule: "Ton Kuralı",
+        sec_location: "3. MEKAN / SETTING",
+        lbl_location: "Seçilen Mekan",
+        sec_concept: "4. PSİKOLOJİK KONSEPT",
+        lbl_term: "Terim (AI Kendi Üretecek)",
+        sec_settings: "5. TEKNİK AYARLAR",
+        lbl_out_lang: "Çıktı Dili",
+        lbl_min: "Min Kelime",
+        lbl_max: "Max Kelime",
+        btn_gen: "PROMPT OLUŞTUR",
+        btn_batch: "TOPLU LİSTE (BATCH)",
+        btn_copy: "📋 Kopyala"
+    },
+    en: {
+        subtitle: "Natural Flow Prompt Engine",
+        random_all: "Randomize All",
+        sec_persona: "1. PERSONA / IDENTITY",
+        lbl_persona_desc: "Character Detail",
+        sec_tone: "2. TONE OF VOICE",
+        lbl_tone_rule: "Tone Rule",
+        sec_location: "3. SETTING / LOCATION",
+        lbl_location: "Selected Location",
+        sec_concept: "4. PSYCHOLOGY CONCEPT",
+        lbl_term: "Term (AI Generates Scenario)",
+        sec_settings: "5. TECHNICAL SETTINGS",
+        lbl_out_lang: "Output Language",
+        lbl_min: "Min Words",
+        lbl_max: "Max Words",
+        btn_gen: "GENERATE PROMPT",
+        btn_batch: "BATCH GENERATE",
+        btn_copy: "📋 Copy to Clipboard"
+    }
+};
+
+const app = {
+    lang: 'tr',
+
+    init: function() {
+        this.renderAll();
+        this.randomizeAll();
+        this.updateUIText();
+    },
+
+    toggleLanguage: function() {
+        this.lang = (this.lang === 'tr') ? 'en' : 'tr';
+        document.getElementById('langDisplay').innerText = (this.lang === 'tr') ? 'TR / EN' : 'EN / TR';
+        document.getElementById('langInput').value = (this.lang === 'tr') ? 'Turkish' : 'English';
+        this.updateUIText();
+        this.renderAll();
+    },
+
+    updateUIText: function() {
+        const t = uiLabels[this.lang];
+        for (const [key, value] of Object.entries(t)) {
+            const el = document.getElementById('ui_' + key);
+            if(el) el.innerText = value;
+        }
+    },
+
+    renderAll: function() {
+        // Personas
+        const pContainer = document.getElementById('personaGrid');
+        pContainer.innerHTML = '';
+        db.personas.forEach(item => {
+            const data = item[this.lang];
+            const chip = this.createChip(item.icon, data.name, () => {
+                document.getElementById('personaInput').value = data.desc;
+            });
+            pContainer.appendChild(chip);
+        });
+
+        // Tones
+        const tContainer = document.getElementById('toneGrid');
+        tContainer.innerHTML = '';
+        db.tones.forEach(item => {
+            const data = item[this.lang];
+            const chip = this.createChip(item.icon, data.name, () => {
+                document.getElementById('toneInput').value = data.desc;
+            });
+            tContainer.appendChild(chip);
+        });
+
+        // Locations
+        const lContainer = document.getElementById('locationGrid');
+        lContainer.innerHTML = '';
+        db.locations.forEach(item => {
+            const text = item[this.lang];
+            const chip = this.createChip(item.icon, text, () => {
+                document.getElementById('mekanInput').value = text;
+            });
+            lContainer.appendChild(chip);
+        });
+
+        // Concepts
+        const cContainer = document.getElementById('conceptGrid');
+        cContainer.innerHTML = '';
+        db.concepts.forEach(item => {
+            const text = item[this.lang];
+            const chip = this.createChip(item.icon, text, () => {
+                document.getElementById('termInput').value = text;
+            });
+            cContainer.appendChild(chip);
+        });
+    },
+
+    createChip: function(icon, text, onClick) {
+        const div = document.createElement('div');
+        div.className = 'chip';
+        div.innerHTML = `<span class="chip-icon">${icon}</span><span class="chip-text">${text}</span>`;
+        div.onclick = function() {
+            const siblings = this.parentElement.children;
+            for(let i=0; i<siblings.length; i++) siblings[i].classList.remove('active');
+            this.classList.add('active');
+            onClick();
+        };
+        return div;
+    },
+
+    triggerRandom: function(gridId) {
+        const container = document.getElementById(gridId);
+        const chips = container.children;
+        const rand = Math.floor(Math.random() * chips.length);
+        if(chips[rand]) {
+            chips[rand].click();
+            chips[rand].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    },
+
+    randomizeAll: function() {
+        this.triggerRandom('personaGrid');
+        this.triggerRandom('toneGrid');
+        this.triggerRandom('locationGrid');
+        this.triggerRandom('conceptGrid');
+    },
+
+    buildPrompt: function(p, t, m, term, lang, min, max) {
+        if(this.lang === 'en') {
+            return `# MISSION: Write a Creative Story (Monologue)
+
+**CRITICAL INSTRUCTION: Do NOT use bullet points, numbered lists, or section headers (e.g., 'Scene 1', 'Twist'). Write a SINGLE, COHERENT, and FLUID NARRATIVE.**
+
+## 1. IDENTITY
+${p}
+
+## 2. TONE
+${t}
+
+## 3. THE TASK
+You are at "${m}". You observe or experience something that perfectly illustrates the psychological concept of "${term}".
+
+Tell this story naturally. 
+* Start with the event.
+* React to it (naively at first).
+* Realize the science/truth behind it ("${term}").
+* End with an ironic or accepting conclusion.
+
+Again, write this as a **continuous story**, not a report.
+
+---
+**DETAILS:**
+* Language: ${lang}
+* Length: ${min}-${max} words`;
+        } else {
+            return `# GÖREV: Yaratıcı Hikaye Yaz (Monolog)
+
+**KRİTİK TALİMAT: Çıktıda ASLA madde işaretleri, numaralandırma veya bölüm başlıkları (Örn: '1. Sahne', 'Sonuç' vb.) KULLANMA. Tek parça, akıcı ve bütünlüklü bir hikaye/sohbet yaz.**
+
+## 1. KİMLİK (SEN KİMSİN?)
+${p}
+
+## 2. ÜSLUP (NASIL KONUŞURSUN?)
+${t}
+
+## 3. SENARYO
+Şu an buradasın: "${m}".
+Burada yaşadığın veya gördüğün bir olay, tam olarak şu psikolojik kavramı doğruluyor: "${term}".
+
+Bu hikayeyi doğal bir dille anlat:
+* Olayla başla.
+* Önce safça/bilgisizce yorumla.
+* Sonra işin bilimsel/psikolojik yüzünü ("${term}") fark et ve açıkla.
+* İronik veya kabullenici bir sonla bitir.
+
+Tekrar ediyorum: Bunu bir rapor gibi değil, **akıp giden bir hikaye** gibi yaz.
+
+---
+**DETAYLAR:**
+* Dil: ${lang}
+* Uzunluk: ${min}-${max} kelime`;
+        }
+    },
+
+    generateSingle: function() {
+        const p = document.getElementById('personaInput').value;
+        const t = document.getElementById('toneInput').value;
+        const m = document.getElementById('mekanInput').value;
+        const term = document.getElementById('termInput').value;
+        const langVal = document.getElementById('langInput').value;
+        const min = document.getElementById('minInput').value;
+        const max = document.getElementById('maxInput').value;
+
+        if(!p || !t || !m || !term) { alert(this.lang === 'tr' ? 'Lütfen seçim yapın.' : 'Please make a selection.'); return; }
+
+        const output = this.buildPrompt(p, t, m, term, langVal, min, max);
+        document.getElementById('output').value = output;
+    },
+
+    generateBatch: function() {
+        const langVal = document.getElementById('langInput').value;
+        const count = db.personas.length * db.concepts.length;
+        const msg = (this.lang === 'tr') ? `${count} adet prompt üretilecek. Devam?` : `Generate ${count} prompts. Continue?`;
+        if(!confirm(msg)) return;
+
+        let batchOutput = "";
+        const min = document.getElementById('minInput').value;
+        const max = document.getElementById('maxInput').value;
+
+        db.personas.forEach(pers => {
+            db.concepts.forEach(conc => {
+                const rLoc = db.locations[Math.floor(Math.random() * db.locations.length)][this.lang];
+                const rTone = db.tones[Math.floor(Math.random() * db.tones.length)][this.lang];
+                
+                batchOutput += `=== ${pers[this.lang].name} X ${conc[this.lang]} ===\n`;
+                batchOutput += this.buildPrompt(
+                    pers[this.lang].desc, rTone.desc, rLoc, 
+                    conc[this.lang], 
+                    langVal, min, max
+                );
+                batchOutput += "\n\n\n";
+            });
+        });
+        document.getElementById('output').value = batchOutput;
+    },
+
+    copy: function() {
+        const el = document.getElementById('output');
+        el.select();
+        navigator.clipboard.writeText(el.value);
+        const btn = document.getElementById('ui_btn_copy');
+        const orig = btn.innerText;
+        btn.innerText = (this.lang === 'tr') ? "✅ Kopyalandı!" : "✅ Copied!";
+        setTimeout(() => btn.innerText = orig, 2000);
+    }
+};
+
+window.onload = () => app.init();
+</script>
+
+</body>
+</html>
